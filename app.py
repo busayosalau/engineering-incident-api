@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 
 from sqlalchemy.orm import Session
@@ -36,6 +36,28 @@ def create_incident(incident: IncidentCreate,
 
     return {
 	"incident_id" : db_incident.incident_id,
+        "description": db_incident.description,
+        "production_line": db_incident.production_line,
+        "status": db_incident.status
+    }
+
+
+@app.get("/incidents/{incident_id}")
+def get_incident(
+    incident_id: str,
+    db: Session = Depends(get_db)
+):
+
+    db_incident = db.get(Incident, incident_id)
+
+    if db_incident is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Incident not found"
+        )
+
+    return {
+        "incident_id": db_incident.incident_id,
         "description": db_incident.description,
         "production_line": db_incident.production_line,
         "status": db_incident.status

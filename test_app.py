@@ -127,3 +127,39 @@ def test_incidents_receive_unique_ids():
     second_id = second_response.json()["incident_id"]
 
     assert first_id != second_id
+
+
+def test_get_existing_incident():
+    create_response = client.post(
+        "/incidents",
+        json={
+            "description": "Temperature exceeded specification.",
+            "production_line": "Line-2"
+        }
+    )
+
+    assert create_response.status_code == 201
+
+    incident_id = create_response.json()["incident_id"]
+
+    get_response = client.get(f"/incidents/{incident_id}")
+
+    assert get_response.status_code == 200
+
+    data = get_response.json()
+
+    assert data["incident_id"] == incident_id
+    assert data["description"] == "Temperature exceeded specification."
+    assert data["production_line"] == "Line-2"
+    assert data["status"] == "created"
+    assert create_response.status_code == 201
+
+
+def test_get_missing_incident_returns_404():
+    response = client.get("/incidents/nonexistent-id")
+
+    assert response.status_code == 404
+
+    data = response.json()
+
+    assert data["detail"] == "Incident not found"
