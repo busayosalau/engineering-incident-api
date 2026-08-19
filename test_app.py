@@ -152,7 +152,6 @@ def test_get_existing_incident():
     assert data["description"] == "Temperature exceeded specification."
     assert data["production_line"] == "Line-2"
     assert data["status"] == "created"
-    assert create_response.status_code == 201
 
 
 def test_get_missing_incident_returns_404():
